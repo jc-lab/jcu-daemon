@@ -25,11 +25,13 @@ namespace jcu {
     namespace daemon {
         static std::unique_ptr<Daemon> singletone;
 
-        class DaemonImpl : public Daemon {
+        class DaemonImpl : public Daemon, public DaemonPlatformHandler {
         public:
             DaemonPlatform::RunType run_type_;
             std::unique_ptr<DaemonPlatform> platform_;
             std::atomic<bool> running_;
+
+            std::unique_ptr<StateEventFunction> state_event_callback_;
 
             DaemonImpl(const char *service_name)
             : Daemon(service_name) {
@@ -51,7 +53,21 @@ namespace jcu {
                     std::signal(SIGINT, [](int signum) -> void {
                       DaemonImpl *self = (DaemonImpl*)singletone.get();
                       self->running_.store(false);
+
+                      StateEventFunction *cb = self->state_event_callback_.get();
+                      if(cb) {
+                          (*cb)(self, SEVENT_STOP);
+                      }
                     });
+#ifdef SIGHUP
+                    std::signal(SIGHUP, [](int signum) -> void {
+                      DaemonImpl *self = (DaemonImpl*)singletone.get();
+                      StateEventFunction *cb = self->state_event_callback_.get();
+                      if(cb) {
+                          (*cb)(self, SEVENT_HUP);
+                      }
+                    });
+#endif
                     rc = worker(this);
                 }
                 return rc;
@@ -60,6 +76,17 @@ namespace jcu {
             static Daemon *create(const char *service_name) {
                 singletone.reset(new DaemonImpl(service_name));
                 return singletone.get();
+            }
+
+            void setOnStateEvent(const StateEventFunction& state_event_callback) override {
+                state_event_callback_.reset(new StateEventFunction(state_event_callback));
+            }
+
+            void onStateEvent(StateEvent state_event) override {
+                StateEventFunction *cb = state_event_callback_.get();
+                if(cb) {
+                    (*cb)(this, state_event);
+                }
             }
         };
 

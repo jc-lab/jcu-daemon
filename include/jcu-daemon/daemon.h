@@ -17,6 +17,12 @@ namespace jcu {
     namespace daemon {
         class Daemon;
 
+        enum StateEvent {
+            SEVENT_STOP = 1,
+            SEVENT_HUP = 2,
+        };
+
+        typedef std::function<void(Daemon *daemon, StateEvent event)> StateEventFunction;
         typedef std::function<int(Daemon *daemon)> WorkerFunction;
 
         class Daemon {
@@ -25,8 +31,15 @@ namespace jcu {
 
             Daemon(const char *service_name);
 
+            virtual void setOnStateEvent(const StateEventFunction& state_event_callback) = 0;
+
         public:
             const std::string &getServiceName() const;
+
+            Daemon *onStateEvent(const StateEventFunction& state_event_callback) {
+                this->setOnStateEvent(state_event_callback);
+                return this;
+            }
 
             virtual int run(const WorkerFunction& worker) = 0;
             virtual bool running() const = 0;

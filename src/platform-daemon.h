@@ -15,6 +15,11 @@
 
 namespace jcu {
     namespace daemon {
+        class DaemonPlatformHandler {
+        public:
+            virtual void onStateEvent(StateEvent state_event) = 0;
+        };
+
         class DaemonPlatform {
         public:
             enum RunType {
