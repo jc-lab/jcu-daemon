@@ -46,6 +46,7 @@ namespace jcu {
         };
 
         extern Daemon *initialize(const char *service_name);
+        extern Daemon *getInstance();
     }
 }
 

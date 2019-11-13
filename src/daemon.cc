@@ -73,7 +73,7 @@ namespace jcu {
                 return rc;
             }
 
-            static Daemon *create(const char *service_name) {
+            static Daemon *initialize(const char *service_name) {
                 singletone.reset(new DaemonImpl(service_name));
                 return singletone.get();
             }
@@ -91,7 +91,11 @@ namespace jcu {
         };
 
         Daemon *initialize(const char *service_name) {
-            return DaemonImpl::create(service_name);
+            return DaemonImpl::initialize(service_name);
+        }
+
+        Daemon *getInstance() {
+            return singletone.get();
         }
 
         Daemon::Daemon(const char *service_name)
