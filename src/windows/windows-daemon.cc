@@ -9,12 +9,13 @@ namespace jcu {
 
             WindowsDaemon::WindowsDaemon(Daemon *daemon, const char *service_name)
             : daemon_(daemon)
-            , service_name_wstr_(toWstr(service_name))
             , CServiceBase(
-                    (PWSTR)service_name_wstr_.data(),
+                    (PWSTR)service_name_wstr_,
                 TRUE, TRUE, FALSE
                 ),
               retval_(0) {
+				std::basic_string<wchar_t> wstr_service_name(toWstr(service_name));
+				wcscpy_s(service_name_wstr_, wstr_service_name.c_str());
                 stop_event_ = ::CreateEvent(NULL, TRUE, FALSE, NULL);
             }
 

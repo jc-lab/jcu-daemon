@@ -24,7 +24,7 @@ namespace jcu {
             private:
                 Daemon *daemon_;
 
-                std::basic_string<wchar_t> service_name_wstr_;
+				wchar_t service_name_wstr_[256];
                 HANDLE stop_event_;
 
                 WorkerFunction worker_;
