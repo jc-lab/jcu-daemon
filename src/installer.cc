@@ -21,6 +21,14 @@ namespace jcu {
             o.platform_installer_ = NULL;
         }
 
+		Installer& Installer::operator=(Installer&& o) {
+			result_chain_.accept_ = o.result_chain_.accept();
+			result_chain_.result_ = o.result_chain_.result();
+			platform_installer_ = o.platform_installer_;
+			o.platform_installer_ = NULL;
+			return *this;
+		}
+
         Installer::~Installer() {
             if(platform_installer_) {
                 delete platform_installer_;

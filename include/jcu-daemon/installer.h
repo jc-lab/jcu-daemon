@@ -47,11 +47,13 @@ namespace jcu {
         private:
             PlatformInstaller *platform_installer_;
 
-            Installer(const Installer& o) = delete;
+			Installer(const Installer& o) = delete;
+			Installer& operator=(const Installer& o) = delete;
 
         public:
             Installer(PlatformInstaller *platform_installer);
             Installer(Installer && o);
+			Installer& operator=(Installer&& o);
             ~Installer();
 
             enum StartMode {
