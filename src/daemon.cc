@@ -107,8 +107,7 @@ namespace jcu {
         }
 
         Installer installer(const Daemon *from) {
-            PlatformInstaller *platform_installer = new SERVICE_INSTALLER_PLATFORM_CLASS(from);
-            return Installer(platform_installer);
+            return std::move(Installer(std::shared_ptr<PlatformInstaller>(new SERVICE_INSTALLER_PLATFORM_CLASS(from))));
         }
     }
 }

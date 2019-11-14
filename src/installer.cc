@@ -12,28 +12,7 @@
 
 namespace jcu {
     namespace daemon {
-
-        Installer::Installer(PlatformInstaller *platform_installer) : platform_installer_(platform_installer), result_chain_(*this) {
-        }
-
-        Installer::Installer(Installer&& o) : result_chain_(*this, o.result_chain_.accept(), o.result_chain_.result()) {
-            platform_installer_ = o.platform_installer_;
-            o.platform_installer_ = NULL;
-        }
-
-		Installer& Installer::operator=(Installer&& o) {
-			result_chain_.accept_ = o.result_chain_.accept();
-			result_chain_.result_ = o.result_chain_.result();
-			platform_installer_ = o.platform_installer_;
-			o.platform_installer_ = NULL;
-			return *this;
-		}
-
-        Installer::~Installer() {
-            if(platform_installer_) {
-                delete platform_installer_;
-                platform_installer_ = NULL;
-            }
+        Installer::Installer(std::shared_ptr<PlatformInstaller> platform_installer) : platform_installer_(platform_installer) {
         }
 
         Installer& Installer::withServiceName(const std::string& service_name) {
@@ -57,24 +36,22 @@ namespace jcu {
             return *this;
         }
 
-        InstallResultChain &Installer::install() {
+        InstallResultChain Installer::install() {
             PlatformInstaller::Result r(platform_installer_->install());
-            result_chain_.accept_ = r.accept_;
-            result_chain_.result_ = r.result_;
-            return result_chain_;
+			return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
         }
 
-        InstallResultChain &Installer::start() {
+        InstallResultChain Installer::start() {
             PlatformInstaller::Result r(platform_installer_->start());
-            result_chain_.accept_ = r.accept_;
-            result_chain_.result_ = r.result_;
-            return result_chain_;
+			return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
         }
 
-        InstallResultChain& InstallResultChain::start() {
+        InstallResultChain InstallResultChain::start() {
             if(!accept_)
                 return *this;
-            return installer_.start();
+
+			PlatformInstaller::Result r(platform_installer_->start());
+			return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
         }
     }
 }

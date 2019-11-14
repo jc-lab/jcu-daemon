@@ -24,15 +24,14 @@ namespace jcu {
         private:
             friend class Installer;
 
-            Installer &installer_;
+			std::shared_ptr<PlatformInstaller> platform_installer_;
             bool accept_;
             int result_;
 
         public:
-            InstallResultChain(Installer &installer) : installer_(installer), accept_(false), result_(0) {}
-            InstallResultChain(Installer &installer, bool accept, int result) : installer_(installer), accept_(accept), result_(result) {}
+            InstallResultChain(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : platform_installer_(std::move(platform_installer)), accept_(accept), result_(result) {}
 
-            InstallResultChain& start();
+            InstallResultChain start();
 
             bool accept() const {
                 return accept_;
@@ -45,16 +44,15 @@ namespace jcu {
 
         class Installer {
         private:
-            PlatformInstaller *platform_installer_;
+			std::shared_ptr<PlatformInstaller> platform_installer_;
 
 			Installer(const Installer& o) = delete;
 			Installer& operator=(const Installer& o) = delete;
 
         public:
-            Installer(PlatformInstaller *platform_installer);
-            Installer(Installer && o);
-			Installer& operator=(Installer&& o);
-            ~Installer();
+            Installer(std::shared_ptr<PlatformInstaller> platform_installer);
+			Installer(Installer&& o) = default;
+			Installer& operator=(Installer&& o) = default;
 
             enum StartMode {
                 START_DEMAND = 0,
@@ -66,11 +64,8 @@ namespace jcu {
             Installer& withArguments(const std::string& arguments);
             Installer& withStartMode(StartMode start_mode);
             Installer& withPath(const file::Path &path);
-            InstallResultChain& install();
-            InstallResultChain& start();
-
-        private:
-            InstallResultChain result_chain_;
+            InstallResultChain install();
+            InstallResultChain start();
         };
 
         extern Installer installer(const Daemon *from = nullptr);
