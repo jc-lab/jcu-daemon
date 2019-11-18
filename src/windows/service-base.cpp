@@ -118,6 +118,9 @@ namespace jcu {
             //
             void WINAPI CServiceBase::ServiceCtrlHandler(DWORD dwCtrl)
             {
+                if(s_service->OnServiceCtrl(dwCtrl)) {
+                    return ;
+                }
                 switch (dwCtrl)
                 {
                 case SERVICE_CONTROL_STOP: s_service->Stop(); break;
@@ -461,6 +464,11 @@ namespace jcu {
             //
             void CServiceBase::OnShutdown()
             {
+            }
+
+            bool CServiceBase::OnServiceCtrl(DWORD dwCtrl)
+            {
+                return false;
             }
 
             #pragma endregion

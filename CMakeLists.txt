@@ -4,8 +4,9 @@ project(jcu-daemon CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(SRC_FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/src/daemon.cc
 		${CMAKE_CURRENT_SOURCE_DIR}/src/installer.cc
+		${CMAKE_CURRENT_SOURCE_DIR}/src/daemon-impl.h
+		${CMAKE_CURRENT_SOURCE_DIR}/src/daemon-impl.cc
 		${CMAKE_CURRENT_SOURCE_DIR}/include/jcu-daemon/daemon.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/jcu-daemon/installer.h
 		${CMAKE_CURRENT_SOURCE_DIR}/src/platform-daemon.h

@@ -24,6 +24,7 @@ namespace jcu {
 
         typedef std::function<void(Daemon *daemon, StateEvent event)> StateEventFunction;
         typedef std::function<int(Daemon *daemon)> WorkerFunction;
+        typedef std::function<bool(Daemon *daemon, int ctrl)> WindowsServiceCtrlEventFunction;
 
         class Daemon {
         protected:
@@ -32,12 +33,18 @@ namespace jcu {
             Daemon(const char *service_name);
 
             virtual void setOnStateEvent(const StateEventFunction& state_event_callback) = 0;
+            virtual void setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction& service_ctrl_event_callback) {}
 
         public:
             const std::string &getServiceName() const;
 
             Daemon *onStateEvent(const StateEventFunction& state_event_callback) {
                 this->setOnStateEvent(state_event_callback);
+                return this;
+            }
+
+            Daemon *onWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction& service_ctrl_event_callback) {
+                this->setOnWindowsServiceCtrlEvent(service_ctrl_event_callback);
                 return this;
             }
 

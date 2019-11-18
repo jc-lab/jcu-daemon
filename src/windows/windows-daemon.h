@@ -12,7 +12,7 @@
 
 #include <thread>
 
-#include "jcu-daemon/daemon.h"
+#include "../daemon-impl.h"
 #include "../platform-daemon.h"
 
 #include "service-base.h"
@@ -22,7 +22,7 @@ namespace jcu {
         namespace windows {
             class WindowsDaemon : public DaemonPlatform, public CServiceBase {
             private:
-                Daemon *daemon_;
+                DaemonImpl *daemon_;
 
 				wchar_t service_name_wstr_[256];
                 HANDLE stop_event_;
@@ -32,12 +32,13 @@ namespace jcu {
                 int retval_;
 
             public:
-                WindowsDaemon(Daemon *daemon, const char *service_name);
+                WindowsDaemon(DaemonImpl *daemon, const char *service_name);
                 virtual ~WindowsDaemon();
 
             protected:
                 void OnStart(DWORD dwArgc, PWSTR *pszArgv) override;
                 void OnStop() override;
+                bool OnServiceCtrl(DWORD dwCtrl) override;
 
             public:
                 RunType runInService(int *rc, const WorkerFunction& worker) override;

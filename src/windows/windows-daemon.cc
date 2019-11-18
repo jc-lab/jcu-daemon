@@ -7,7 +7,7 @@ namespace jcu {
                 return std::basic_string<wchar_t>(text.cbegin(), text.cend());
             }
 
-            WindowsDaemon::WindowsDaemon(Daemon *daemon, const char *service_name)
+            WindowsDaemon::WindowsDaemon(DaemonImpl *daemon, const char *service_name)
             : daemon_(daemon)
             , CServiceBase(
                     (PWSTR)service_name_wstr_,
@@ -33,6 +33,10 @@ namespace jcu {
 
             void WindowsDaemon::OnStop() {
                 ::SetEvent(stop_event_);
+            }
+
+            bool WindowsDaemon::OnServiceCtrl(DWORD dwCtrl) {
+                return daemon_->onWindowsServiceCtrlEvent((int)dwCtrl);
             }
 
             bool WindowsDaemon::running() {
