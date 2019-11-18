@@ -35,7 +35,7 @@ namespace jcu {
                 if(scm_handler_ && (scm_handler_ != INVALID_HANDLE_VALUE)) {
                     return 0;
                 }
-                scm_handler_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE);
+                scm_handler_ = OpenSCManager(NULL, NULL, SC_MANAGER_CONNECT | SC_MANAGER_CREATE_SERVICE | SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | SERVICE_START | SERVICE_STOP);
                 if(!scm_handler_ || scm_handler_ == INVALID_HANDLE_VALUE) {
                     return ::GetLastError();
                 }
@@ -94,7 +94,7 @@ namespace jcu {
                     scm_handler_,                   // SCManager database
                     service_name_.c_str(),                 // Name of service
                     display_name_.c_str(),                 // Name to display
-                    SERVICE_QUERY_STATUS,           // Desired access
+					SERVICE_ALL_ACCESS,           // Desired access
                     SERVICE_WIN32_OWN_PROCESS,      // Service type
                     dwStartType,                    // Service start type
                     SERVICE_ERROR_NORMAL,           // Error control type
