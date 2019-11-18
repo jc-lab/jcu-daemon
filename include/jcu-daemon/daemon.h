@@ -24,7 +24,7 @@ namespace jcu {
 
         typedef std::function<void(Daemon *daemon, StateEvent event)> StateEventFunction;
         typedef std::function<int(Daemon *daemon)> WorkerFunction;
-        typedef std::function<bool(Daemon *daemon, int ctrl)> WindowsServiceCtrlEventFunction;
+        typedef std::function<bool(Daemon *daemon, int ctrl, int event_type, void *event_data)> WindowsServiceCtrlEventFunction;
 
         class Daemon {
         protected:

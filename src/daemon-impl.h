@@ -37,7 +37,7 @@ namespace jcu {
 
             void onStateEvent(StateEvent state_event) override;
 
-            bool onWindowsServiceCtrlEvent(int ctrl) override;
+            bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) override;
         };
     }
 }

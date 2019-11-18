@@ -81,8 +81,8 @@ namespace jcu {
                 assert(s_service != NULL);
 
                 // Register the handler function for the service
-                s_service->m_statusHandle = RegisterServiceCtrlHandler(
-                    s_service->m_name, ServiceCtrlHandler);
+                s_service->m_statusHandle = RegisterServiceCtrlHandlerEx(
+                    s_service->m_name, ServiceCtrlHandler, s_service);
                 if (s_service->m_statusHandle == NULL)
                 {
                     throw GetLastError();
@@ -116,20 +116,24 @@ namespace jcu {
             //   This parameter can also be a user-defined control code ranges from 128
             //   to 255.
             //
-            void WINAPI CServiceBase::ServiceCtrlHandler(DWORD dwCtrl)
+            DWORD WINAPI CServiceBase::ServiceCtrlHandler(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData, LPVOID lpContext)
             {
-                if(s_service->OnServiceCtrl(dwCtrl)) {
-                    return ;
+                CServiceBase *service = (CServiceBase*)lpContext;
+
+                if(service->OnServiceCtrl(dwControl, dwEventType, lpEventData)) {
+                    return NO_ERROR;
                 }
-                switch (dwCtrl)
+                switch (dwControl)
                 {
-                case SERVICE_CONTROL_STOP: s_service->Stop(); break;
-                case SERVICE_CONTROL_PAUSE: s_service->Pause(); break;
-                case SERVICE_CONTROL_CONTINUE: s_service->Continue(); break;
-                case SERVICE_CONTROL_SHUTDOWN: s_service->Shutdown(); break;
+                case SERVICE_CONTROL_STOP: service->Stop(); break;
+                case SERVICE_CONTROL_PAUSE: service->Pause(); break;
+                case SERVICE_CONTROL_CONTINUE: service->Continue(); break;
+                case SERVICE_CONTROL_SHUTDOWN: service->Shutdown(); break;
                 case SERVICE_CONTROL_INTERROGATE: break;
                 default: break;
                 }
+
+                return NO_ERROR;
             }
 
             #pragma endregion
@@ -466,7 +470,7 @@ namespace jcu {
             {
             }
 
-            bool CServiceBase::OnServiceCtrl(DWORD dwCtrl)
+            bool CServiceBase::OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData)
             {
                 return false;
             }

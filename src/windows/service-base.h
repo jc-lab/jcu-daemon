@@ -77,7 +77,7 @@ namespace jcu {
                 // system shutting down.
                 virtual void OnShutdown();
 
-                virtual bool OnServiceCtrl(DWORD dwCtrl);
+                virtual bool OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData);
 
                 // Set the service status and report the status to the SCM.
                 void SetServiceStatus(DWORD dwCurrentState,
@@ -99,7 +99,7 @@ namespace jcu {
 
                 // The function is called by the SCM whenever a control code is sent to
                 // the service.
-                static void WINAPI ServiceCtrlHandler(DWORD dwCtrl);
+                static DWORD WINAPI ServiceCtrlHandler(DWORD dwCtrl, DWORD dwEventType, LPVOID lpEventData, LPVOID lpContext);
 
                 // Start the service.
                 void Start(DWORD dwArgc, PWSTR *pszArgv);

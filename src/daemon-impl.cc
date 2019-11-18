@@ -82,10 +82,10 @@ namespace jcu {
             }
         }
 
-        bool DaemonImpl::onWindowsServiceCtrlEvent(int ctrl) {
+        bool DaemonImpl::onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) {
             WindowsServiceCtrlEventFunction *cb = service_ctrl_event_callback_.get();
             if(cb) {
-                return (*cb)(this, ctrl);
+                return (*cb)(this, ctrl, event_type, event_data);
             }
             return false;
         }

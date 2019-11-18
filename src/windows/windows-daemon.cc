@@ -35,8 +35,8 @@ namespace jcu {
                 ::SetEvent(stop_event_);
             }
 
-            bool WindowsDaemon::OnServiceCtrl(DWORD dwCtrl) {
-                return daemon_->onWindowsServiceCtrlEvent((int)dwCtrl);
+            bool WindowsDaemon::OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData) {
+                return daemon_->onWindowsServiceCtrlEvent((int)dwControl, dwEventType, lpEventData);
             }
 
             bool WindowsDaemon::running() {

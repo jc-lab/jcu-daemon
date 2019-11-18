@@ -38,7 +38,7 @@ namespace jcu {
             protected:
                 void OnStart(DWORD dwArgc, PWSTR *pszArgv) override;
                 void OnStop() override;
-                bool OnServiceCtrl(DWORD dwCtrl) override;
+                bool OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData) override;
 
             public:
                 RunType runInService(int *rc, const WorkerFunction& worker) override;

@@ -18,7 +18,7 @@ namespace jcu {
         class DaemonPlatformHandler {
         public:
             virtual void onStateEvent(StateEvent state_event) = 0;
-            virtual bool onWindowsServiceCtrlEvent(int ctrl) { return false; }
+            virtual bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) { return false; }
         };
 
         class DaemonPlatform {
