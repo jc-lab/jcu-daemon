@@ -15,7 +15,7 @@
 #include "jcu-daemon/daemon.h"
 #include "../platform-daemon.h"
 
-#include "service_base.h"
+#include "service-base.h"
 
 namespace jcu {
     namespace daemon {

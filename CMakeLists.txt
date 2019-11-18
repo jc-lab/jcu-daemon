@@ -14,8 +14,8 @@ set(SRC_FILES
 
 if(WIN32)
 	set(SRC_PLATFORM_FILES
-			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/service_base.h
-			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/service_base.cpp
+			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/service-base.h
+			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/service-base.cpp
 			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/windows-daemon.h
 			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/windows-daemon.cc
 			${CMAKE_CURRENT_SOURCE_DIR}/src/windows/windows-installer.h
