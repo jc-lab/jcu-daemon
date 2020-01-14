@@ -14,7 +14,7 @@ namespace jcu {
     namespace daemon {
         namespace windows {
             WindowsServiceInstaller::WindowsServiceInstaller(const jcu::daemon::Daemon *daemon)
-            : scm_handler_(NULL), start_mode_(Installer::START_DEMAND), path_(file::Path::self()) {
+            : scm_handler_(NULL), service_handle_(NULL), start_mode_(Installer::START_DEMAND), path_(file::Path::self()) {
                 if(daemon) {
                     setServiceName(daemon->getServiceName());
                 }
@@ -66,6 +66,10 @@ namespace jcu {
             }
 
             DWORD WindowsServiceInstaller::openServiceHandle() {
+                int rc = openServiceManager();
+                if(rc) {
+                    return rc;
+                }
                 if (!service_handle_) {
                     service_handle_ = OpenService(scm_handler_, service_name_.c_str(), SERVICE_ALL_ACCESS);
                     if (!service_handle_) {
@@ -136,13 +140,7 @@ namespace jcu {
             }
 
             PlatformInstaller::Result WindowsServiceInstaller::uninstall() {
-                int rc = openServiceManager();
-
-                if(rc != 0) {
-                    return Result(false, rc);
-                }
-
-                rc = openServiceHandle();
+                int rc = openServiceHandle();
                 if (rc) {
                     return Result(false, rc);
                 }
@@ -156,9 +154,7 @@ namespace jcu {
             }
 
             PlatformInstaller::Result WindowsServiceInstaller::start() {
-                int rc;
-
-                rc = openServiceHandle();
+                int rc = openServiceHandle();
                 if (rc) {
                     return Result(false, rc);
                 }
