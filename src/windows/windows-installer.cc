@@ -25,6 +25,10 @@ namespace jcu {
             }
 
             void WindowsServiceInstaller::close() {
+                if (service_handle_) {
+                    CloseServiceHandle(service_handle_);
+                    service_handle_ = NULL;
+                }
                 if(scm_handler_ && (scm_handler_ != INVALID_HANDLE_VALUE)) {
                     ::CloseServiceHandle(scm_handler_);
                     scm_handler_ = NULL;
@@ -61,6 +65,16 @@ namespace jcu {
                 path_ = path;
             }
 
+            DWORD WindowsServiceInstaller::openServiceHandle() {
+                if (!service_handle_) {
+                    service_handle_ = OpenService(scm_handler_, service_name_.c_str(), SERVICE_ALL_ACCESS);
+                    if (!service_handle_) {
+                        return ::GetLastError();
+                    }
+                }
+                return 0;
+            }
+
             PlatformInstaller::Result WindowsServiceInstaller::install() {
                 int rc = openServiceManager();
 
@@ -90,6 +104,9 @@ namespace jcu {
                     commandLine.append(arguments_);
                 }
 
+                if (service_handle_) {
+                    CloseServiceHandle(service_handle_);
+                }
                 service_handle_ = CreateService(
                     scm_handler_,                   // SCManager database
                     service_name_.c_str(),                 // Name of service
@@ -118,12 +135,55 @@ namespace jcu {
                 return Result(true, 0);
             }
 
+            PlatformInstaller::Result WindowsServiceInstaller::uninstall() {
+                int rc = openServiceManager();
+
+                if(rc != 0) {
+                    return Result(false, rc);
+                }
+
+                rc = openServiceHandle();
+                if (rc) {
+                    return Result(false, rc);
+                }
+
+                if (!DeleteService(service_handle_)) {
+                    DWORD dwError = ::GetLastError();
+                    return Result(false, dwError);
+                }
+
+                return Result(true, 0);
+            }
+
             PlatformInstaller::Result WindowsServiceInstaller::start() {
+                int rc;
+
+                rc = openServiceHandle();
+                if (rc) {
+                    return Result(false, rc);
+                }
+
                 if(!::StartService(service_handle_, 0, NULL)) {
                     DWORD dwError = ::GetLastError();
                     if(dwError == ERROR_SERVICE_ALREADY_RUNNING) {
                         return Result(true, dwError);
                     }
+                    return Result(false, dwError);
+                }
+                return Result(true, 0);
+            }
+
+            PlatformInstaller::Result WindowsServiceInstaller::stop() {
+                SERVICE_STATUS service_status = { 0 };
+                int rc;
+
+                rc = openServiceHandle();
+                if (rc) {
+                    return Result(false, rc);
+                }
+
+                if(!::ControlService(service_handle_, SERVICE_CONTROL_STOP, &service_status)) {
+                    DWORD dwError = ::GetLastError();
                     return Result(false, dwError);
                 }
                 return Result(true, 0);

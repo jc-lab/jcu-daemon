@@ -29,6 +29,8 @@ namespace jcu {
                 Installer::StartMode start_mode_;
                 file::Path path_;
 
+                DWORD openServiceHandle();
+
             public:
                 WindowsServiceInstaller(const Daemon *daemon = nullptr);
                 ~WindowsServiceInstaller();
@@ -42,7 +44,9 @@ namespace jcu {
                 void setStartMode(Installer::StartMode start_mode) override;
                 void setPath(const file::Path& path) override;
                 Result install() override;
+                Result uninstall() override;
                 Result start() override;
+                Result stop() override;
             };
         }
     }

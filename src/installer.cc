@@ -41,9 +41,19 @@ namespace jcu {
 			return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
         }
 
+        Result Installer::uninstall() {
+            PlatformInstaller::Result r(platform_installer_->uninstall());
+            return std::move(Result(platform_installer_, r.accept_, r.result_));
+        }
+
         InstallResultChain Installer::start() {
             PlatformInstaller::Result r(platform_installer_->start());
 			return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+        }
+
+        Result Installer::stop() {
+            PlatformInstaller::Result r(platform_installer_->stop());
+            return std::move(Result(platform_installer_, r.accept_, r.result_));
         }
 
         InstallResultChain InstallResultChain::start() {

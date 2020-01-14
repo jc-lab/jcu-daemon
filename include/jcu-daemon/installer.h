@@ -20,18 +20,17 @@ namespace jcu {
         class Daemon;
         class PlatformInstaller;
 
-        class InstallResultChain {
-        private:
+        class Result {
+        protected:
             friend class Installer;
 
-			std::shared_ptr<PlatformInstaller> platform_installer_;
+            std::shared_ptr<PlatformInstaller> platform_installer_;
+
             bool accept_;
             int result_;
 
         public:
-            InstallResultChain(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : platform_installer_(std::move(platform_installer)), accept_(accept), result_(result) {}
-
-            InstallResultChain start();
+            Result(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : platform_installer_(std::move(platform_installer)), accept_(accept), result_(result) {}
 
             bool accept() const {
                 return accept_;
@@ -40,6 +39,15 @@ namespace jcu {
             int result() const {
                 return result_;
             }
+        };
+
+        class InstallResultChain : public Result {
+        private:
+            friend class Installer;
+
+        public:
+            InstallResultChain(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : Result(std::move(platform_installer), accept, result) {}
+            InstallResultChain start();
         };
 
         class Installer {
@@ -66,6 +74,9 @@ namespace jcu {
             Installer& withPath(const file::Path &path);
             InstallResultChain install();
             InstallResultChain start();
+
+            Result stop();
+            Result uninstall();
         };
 
         extern Installer installer(const Daemon *from = nullptr);

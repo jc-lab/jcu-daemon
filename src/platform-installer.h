@@ -30,7 +30,9 @@ namespace jcu {
             virtual void setPath(const file::Path &path) = 0;
             virtual void setArguments(const std::string& arguments) = 0;
             virtual Result install() = 0;
+            virtual Result uninstall() = 0;
             virtual Result start() = 0;
+            virtual Result stop() = 0;
         };
     }
 }
