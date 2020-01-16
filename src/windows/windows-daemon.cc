@@ -33,6 +33,10 @@ namespace jcu {
 
             void WindowsDaemon::OnStop() {
                 ::SetEvent(stop_event_);
+                daemon_->onStateEvent(SEVENT_STOP);
+                if (thread_.joinable()) {
+                    thread_.join();
+                }
             }
 
             bool WindowsDaemon::OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData) {
