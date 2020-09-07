@@ -29,7 +29,16 @@ class DaemonPlatform {
     RUN_START_WORKER
   };
 
-  virtual RunType runInService(int *rc, const WorkerFunction &worker) = 0;
+  /**
+   * run in service mode
+   *
+   * 1. run startup
+   * 2. start worker thread or process
+   * @param rc
+   * @param worker
+   * @return
+   */
+  virtual RunType run(int *rc, const WorkerFunction &worker) = 0;
   virtual bool running() = 0;
 };
 

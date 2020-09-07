@@ -38,7 +38,7 @@ bool DaemonImpl::running() const {
 int DaemonImpl::run(const WorkerFunction &worker) {
   int rc = 0;
   running_.store(true);
-  run_type_ = platform_->runInService(&rc, worker);
+  run_type_ = platform_->run(&rc, worker);
   if (run_type_ == DaemonPlatform::RUN_START_WORKER) {
     std::signal(SIGINT, [](int signum) -> void {
       DaemonImpl *self = (DaemonImpl *) singletone.get();

@@ -48,7 +48,7 @@ bool WindowsDaemon::running() {
   return (dwWait == WAIT_TIMEOUT);
 }
 
-DaemonPlatform::RunType WindowsDaemon::runInService(int *rc, const WorkerFunction &worker) {
+DaemonPlatform::RunType WindowsDaemon::run(int *rc, const WorkerFunction &worker) {
   worker_ = worker;
   BOOL bServiceRun = CServiceBase::Run(*this);
   if (!bServiceRun) {

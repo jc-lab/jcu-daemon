@@ -42,7 +42,7 @@ class WindowsDaemon : public DaemonPlatform, public CServiceBase {
   bool OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData) override;
 
  public:
-  RunType runInService(int *rc, const WorkerFunction &worker) override;
+  RunType run(int *rc, const WorkerFunction &worker) override;
   bool running() override;
 
  private:
