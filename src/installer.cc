@@ -17,52 +17,82 @@ Installer::Installer(std::shared_ptr<PlatformInstaller> platform_installer) : pl
 }
 
 Installer &Installer::withServiceName(const std::string &service_name) {
-  platform_installer_->setServiceName(service_name);
+  if (platform_installer_) {
+    platform_installer_->setServiceName(service_name);
+  }
   return *this;
 }
 Installer &Installer::withDisplayName(const std::string &display_name) {
-  platform_installer_->setDisplayName(display_name);
+  if (platform_installer_) {
+    platform_installer_->setDisplayName(display_name);
+  }
   return *this;
 }
 Installer &Installer::withArguments(const std::string &arguments) {
-  platform_installer_->setArguments(arguments);
+  if (platform_installer_) {
+    platform_installer_->setArguments(arguments);
+  }
   return *this;
 }
 Installer &Installer::withStartMode(StartMode start_mode) {
-  platform_installer_->setStartMode(start_mode);
+  if (platform_installer_) {
+    platform_installer_->setStartMode(start_mode);
+  }
   return *this;
 }
 Installer &Installer::withPath(const file::Path &path) {
-  platform_installer_->setPath(path);
+  if (platform_installer_) {
+    platform_installer_->setPath(path);
+  }
   return *this;
 }
 
 InstallResultChain Installer::install() {
-  PlatformInstaller::Result r(platform_installer_->install());
-  return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  if (platform_installer_) {
+    PlatformInstaller::Result r(platform_installer_->install());
+    return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  }
+  // Not supported
+  return std::move(InstallResultChain(platform_installer_, false, -1));
 }
 
 Result Installer::uninstall() {
-  PlatformInstaller::Result r(platform_installer_->uninstall());
-  return std::move(Result(platform_installer_, r.accept_, r.result_));
+  if (platform_installer_) {
+    PlatformInstaller::Result r(platform_installer_->uninstall());
+    return std::move(Result(platform_installer_, r.accept_, r.result_));
+  }
+  // Not supported
+  return std::move(InstallResultChain(platform_installer_, false, -1));
 }
 
 InstallResultChain Installer::start() {
-  PlatformInstaller::Result r(platform_installer_->start());
-  return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  if (platform_installer_) {
+    PlatformInstaller::Result r(platform_installer_->start());
+    return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  }
+  // Not supported
+  return std::move(InstallResultChain(platform_installer_, false, -1));
 }
 
 Result Installer::stop() {
-  PlatformInstaller::Result r(platform_installer_->stop());
-  return std::move(Result(platform_installer_, r.accept_, r.result_));
+  if (platform_installer_) {
+    PlatformInstaller::Result r(platform_installer_->stop());
+    return std::move(Result(platform_installer_, r.accept_, r.result_));
+  }
+  // Not supported
+  return std::move(InstallResultChain(platform_installer_, false, -1));
 }
 
 InstallResultChain InstallResultChain::start() {
   if (!accept_)
     return *this;
 
-  PlatformInstaller::Result r(platform_installer_->start());
-  return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  if (platform_installer_) {
+    PlatformInstaller::Result r(platform_installer_->start());
+    return std::move(InstallResultChain(platform_installer_, r.accept_, r.result_));
+  }
+  // Not supported
+  return std::move(InstallResultChain(platform_installer_, false, -1));
 }
 
 } // namespace daemon

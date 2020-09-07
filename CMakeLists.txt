@@ -22,6 +22,12 @@ if (WIN32)
             ${CMAKE_CURRENT_SOURCE_DIR}/src/windows/windows-installer.h
             ${CMAKE_CURRENT_SOURCE_DIR}/src/windows/windows-installer.cc
             )
+else()
+    set(SRC_PLATFORM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/linux)
+    set(SRC_PLATFORM_FILES
+            ${SRC_PLATFORM_DIR}/linux_daemon.h
+            ${SRC_PLATFORM_DIR}/linux_daemon.cc
+            )
 endif ()
 
 add_library(${PROJECT_NAME} ${SRC_FILES} ${SRC_PLATFORM_FILES})

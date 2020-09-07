@@ -26,7 +26,6 @@ class WindowsDaemon : public DaemonPlatform, public CServiceBase {
   DaemonImpl *daemon_;
 
   wchar_t service_name_wstr_[256];
-  HANDLE stop_event_;
 
   WorkerFunction worker_;
   std::thread thread_;
@@ -37,13 +36,17 @@ class WindowsDaemon : public DaemonPlatform, public CServiceBase {
   virtual ~WindowsDaemon();
 
  protected:
-  void OnStart(DWORD dwArgc, PWSTR *pszArgv) override;
+  int OnStart(DWORD dwArgc, PWSTR *pszArgv) override;
   void OnStop() override;
   bool OnServiceCtrl(DWORD dwControl, DWORD dwEventType, LPVOID lpEventData) override;
 
  public:
   RunType run(int *rc, const WorkerFunction &worker) override;
-  bool running() override;
+  bool isChild() const override;
+
+  int getCurrentPid() const override;
+  int getParentPid() const override;
+  int getChildPid() const override;
 
  private:
   static void threadEntry(WindowsDaemon *self);

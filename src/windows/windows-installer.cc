@@ -12,6 +12,11 @@
 
 namespace jcu {
 namespace daemon {
+
+std::shared_ptr<PlatformInstaller> createPlatformInstaller(const Daemon* daemon) {
+  return std::shared_ptr<PlatformInstaller>(new windows::WindowsServiceInstaller(daemon));
+}
+
 namespace windows {
 
 WindowsServiceInstaller::WindowsServiceInstaller(const jcu::daemon::Daemon *daemon)

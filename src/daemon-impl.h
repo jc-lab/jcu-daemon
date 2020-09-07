@@ -16,9 +16,14 @@ namespace daemon {
 
 class DaemonImpl : public Daemon, public DaemonPlatformHandler {
  private:
+  DaemonMode mode_;
+
   DaemonPlatform::RunType run_type_;
   std::unique_ptr<DaemonPlatform> platform_;
   std::atomic<bool> running_;
+
+  StartupFunction startup_;
+  WorkerFunction parent_runner_;
 
   std::unique_ptr<StateEventFunction> state_event_callback_;
   std::unique_ptr<WindowsServiceCtrlEventFunction> service_ctrl_event_callback_;
@@ -27,6 +32,18 @@ class DaemonImpl : public Daemon, public DaemonPlatformHandler {
   DaemonImpl(const char *service_name);
 
   bool running() const override;
+
+  bool isChild() const override;
+
+  void setMode(DaemonMode mode) override;
+
+  void setStartup(const StartupFunction &startup) override;
+
+  void setParentRunner(const WorkerFunction& runner) override;
+
+  int runStartup() override;
+
+  DaemonMode getMode() const override;
 
   int run(const WorkerFunction &worker) override;
 
@@ -39,6 +56,10 @@ class DaemonImpl : public Daemon, public DaemonPlatformHandler {
   void onStateEvent(StateEvent state_event) override;
 
   bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) override;
+
+  int getCurrentPid() const override;
+  int getParentPid() const override;
+  int getChildPid() const override;
 };
 
 } // namespace daemon

@@ -18,6 +18,7 @@ namespace daemon {
 
 class DaemonPlatformHandler {
  public:
+  virtual int runStartup() = 0;
   virtual void onStateEvent(StateEvent state_event) = 0;
   virtual bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) { return false; }
 };
@@ -26,7 +27,8 @@ class DaemonPlatform {
  public:
   enum RunType {
     RUN_DONE = 0,
-    RUN_START_WORKER
+    RUN_START_WORKER,
+    RUN_START_PARENT
   };
 
   /**
@@ -39,7 +41,11 @@ class DaemonPlatform {
    * @return
    */
   virtual RunType run(int *rc, const WorkerFunction &worker) = 0;
-  virtual bool running() = 0;
+  virtual bool isChild() const = 0;
+
+  virtual int getCurrentPid() const = 0;
+  virtual int getParentPid() const = 0;
+  virtual int getChildPid() const = 0;
 };
 
 } // namespace daemon

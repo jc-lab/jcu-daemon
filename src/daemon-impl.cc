@@ -8,31 +8,52 @@
  */
 
 #include "daemon-impl.h"
+#include <jcu-daemon/installer.h>
 
 #include <csignal>
-
-#ifdef _WIN32
-#include "windows/windows-daemon.h"
-#include "windows/windows-installer.h"
-#define DAEMON_PLATFORM_CLASS windows::WindowsDaemon
-#define SERVICE_INSTALLER_PLATFORM_CLASS windows::WindowsServiceInstaller
-#endif
 
 namespace jcu {
 namespace daemon {
 
 static std::unique_ptr<Daemon> singletone;
 
+extern std::unique_ptr<DaemonPlatform> createDaemonPlatform(DaemonImpl* daemon, const char* service_name);
+extern std::shared_ptr<PlatformInstaller> createPlatformInstaller(const Daemon* daemon);
+
 DaemonImpl::DaemonImpl(const char *service_name)
-    : Daemon(service_name) {
-  platform_.reset(new DAEMON_PLATFORM_CLASS(this, service_name));
+    : Daemon(service_name), mode_(kNormalMode) {
+  platform_ = std::move(createDaemonPlatform(this, service_name));
 }
 
 bool DaemonImpl::running() const {
-  if (run_type_ == DaemonPlatform::RUN_START_WORKER) {
-    return running_;
+  return running_.load();
+}
+
+bool DaemonImpl::isChild() const {
+  return platform_->isChild();
+}
+
+void DaemonImpl::setMode(DaemonMode mode) {
+  mode_ = mode;
+}
+
+DaemonMode DaemonImpl::getMode() const {
+  return mode_;
+}
+
+void DaemonImpl::setStartup(const StartupFunction &startup) {
+  startup_ = startup;
+}
+
+void DaemonImpl::setParentRunner(const WorkerFunction& runner) {
+  parent_runner_ = runner;
+}
+
+int DaemonImpl::runStartup() {
+  if (startup_) {
+    return startup_(this);
   }
-  return platform_->running();
+  return 0;
 }
 
 int DaemonImpl::run(const WorkerFunction &worker) {
@@ -42,12 +63,20 @@ int DaemonImpl::run(const WorkerFunction &worker) {
   if (run_type_ == DaemonPlatform::RUN_START_WORKER) {
     std::signal(SIGINT, [](int signum) -> void {
       DaemonImpl *self = (DaemonImpl *) singletone.get();
-      self->running_.store(false);
-
       StateEventFunction *cb = self->state_event_callback_.get();
       if (cb) {
         (*cb)(self, SEVENT_STOP);
       }
+
+      self->running_.store(false);
+    });
+    std::signal(SIGTERM, [](int signum) -> void {
+      DaemonImpl *self = (DaemonImpl *) singletone.get();
+      StateEventFunction *cb = self->state_event_callback_.get();
+      if (cb) {
+        (*cb)(self, SEVENT_STOP);
+      }
+      self->running_.store(false);
     });
 #ifdef SIGHUP
     std::signal(SIGHUP, [](int signum) -> void {
@@ -58,7 +87,13 @@ int DaemonImpl::run(const WorkerFunction &worker) {
           }
         });
 #endif
+
     rc = worker(this);
+  }
+  else if (run_type_ == DaemonPlatform::RUN_START_PARENT) {
+    if (parent_runner_) {
+      rc = parent_runner_(this);
+    }
   }
   return rc;
 }
@@ -77,6 +112,9 @@ void DaemonImpl::setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunct
 }
 
 void DaemonImpl::onStateEvent(StateEvent state_event) {
+  if (state_event == SEVENT_STOP) {
+    running_.store(false);
+  }
   StateEventFunction *cb = state_event_callback_.get();
   if (cb) {
     (*cb)(this, state_event);
@@ -89,6 +127,18 @@ bool DaemonImpl::onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event
     return (*cb)(this, ctrl, event_type, event_data);
   }
   return false;
+}
+
+int DaemonImpl::getCurrentPid() const {
+  return platform_->getCurrentPid();
+}
+
+int DaemonImpl::getParentPid() const {
+  return platform_->getParentPid();
+}
+
+int DaemonImpl::getChildPid() const {
+  return platform_->getChildPid();
 }
 
 Daemon *initialize(const char *service_name) {
@@ -108,7 +158,7 @@ const std::string &Daemon::getServiceName() const {
 }
 
 Installer installer(const Daemon *from) {
-  return std::move(Installer(std::shared_ptr<PlatformInstaller>(new SERVICE_INSTALLER_PLATFORM_CLASS(from))));
+  return std::move(Installer(createPlatformInstaller(from)));
 }
 
 } // namespace daemon

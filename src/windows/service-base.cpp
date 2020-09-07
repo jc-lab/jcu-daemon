@@ -211,11 +211,22 @@ CServiceBase::~CServiceBase(void) {
 //
 void CServiceBase::Start(DWORD dwArgc, PWSTR *pszArgv) {
   try {
+    int rc;
+
     // Tell SCM that the service is starting.
     SetServiceStatus(SERVICE_START_PENDING);
 
     // Perform service-specific initialization.
-    OnStart(dwArgc, pszArgv);
+    rc = OnStart(dwArgc, pszArgv);
+    if (rc) {
+      // Log the error.
+      WriteErrorLogEntry(L"Service Startup", rc);
+
+      // Set the service status to be stopped.
+      SetServiceStatus(SERVICE_STOPPED, rc);
+
+      return ;
+    }
 
     // Tell SCM that the service is started.
     SetServiceStatus(SERVICE_RUNNING);
@@ -251,7 +262,8 @@ void CServiceBase::Start(DWORD dwArgc, PWSTR *pszArgv) {
 //   * dwArgc   - number of command line arguments
 //   * lpszArgv - array of command line arguments
 //
-void CServiceBase::OnStart(DWORD dwArgc, PWSTR *pszArgv) {
+int CServiceBase::OnStart(DWORD dwArgc, PWSTR *pszArgv) {
+  return 0;
 }
 
 //
