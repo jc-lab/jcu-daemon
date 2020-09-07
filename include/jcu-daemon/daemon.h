@@ -14,47 +14,49 @@
 #include <functional>
 
 namespace jcu {
-    namespace daemon {
-        class Daemon;
+namespace daemon {
 
-        enum StateEvent {
-            SEVENT_STOP = 1,
-            SEVENT_HUP = 2,
-        };
+class Daemon;
 
-        typedef std::function<void(Daemon *daemon, StateEvent event)> StateEventFunction;
-        typedef std::function<int(Daemon *daemon)> WorkerFunction;
-        typedef std::function<bool(Daemon *daemon, int ctrl, int event_type, void *event_data)> WindowsServiceCtrlEventFunction;
+enum StateEvent {
+  SEVENT_STOP = 1,
+  SEVENT_HUP = 2,
+};
 
-        class Daemon {
-        protected:
-            std::string service_name_;
+typedef std::function<void(Daemon *daemon, StateEvent event)> StateEventFunction;
+typedef std::function<int(Daemon *daemon)> WorkerFunction;
+typedef std::function<bool(Daemon *daemon, int ctrl, int event_type, void *event_data)> WindowsServiceCtrlEventFunction;
 
-            Daemon(const char *service_name);
+class Daemon {
+ protected:
+  std::string service_name_;
 
-            virtual void setOnStateEvent(const StateEventFunction& state_event_callback) = 0;
-            virtual void setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction& service_ctrl_event_callback) {}
+  Daemon(const char *service_name);
 
-        public:
-            const std::string &getServiceName() const;
+  virtual void setOnStateEvent(const StateEventFunction &state_event_callback) = 0;
+  virtual void setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction &service_ctrl_event_callback) {}
 
-            Daemon *onStateEvent(const StateEventFunction& state_event_callback) {
-                this->setOnStateEvent(state_event_callback);
-                return this;
-            }
+ public:
+  const std::string &getServiceName() const;
 
-            Daemon *onWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction& service_ctrl_event_callback) {
-                this->setOnWindowsServiceCtrlEvent(service_ctrl_event_callback);
-                return this;
-            }
+  Daemon *onStateEvent(const StateEventFunction &state_event_callback) {
+    this->setOnStateEvent(state_event_callback);
+    return this;
+  }
 
-            virtual int run(const WorkerFunction& worker) = 0;
-            virtual bool running() const = 0;
-        };
+  Daemon *onWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction &service_ctrl_event_callback) {
+    this->setOnWindowsServiceCtrlEvent(service_ctrl_event_callback);
+    return this;
+  }
 
-        extern Daemon *initialize(const char *service_name);
-        extern Daemon *getInstance();
-    }
-}
+  virtual int run(const WorkerFunction &worker) = 0;
+  virtual bool running() const = 0;
+};
+
+extern Daemon *initialize(const char *service_name);
+extern Daemon *getInstance();
+
+} // namespace daemon
+} // namespace jcu
 
 #endif //__JCU_DAEMON_DAEMON_H__

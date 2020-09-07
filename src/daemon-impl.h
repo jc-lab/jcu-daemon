@@ -12,34 +12,36 @@
 #include <atomic>
 
 namespace jcu {
-    namespace daemon {
-        class DaemonImpl : public Daemon, public DaemonPlatformHandler {
-        private:
-            DaemonPlatform::RunType run_type_;
-            std::unique_ptr<DaemonPlatform> platform_;
-            std::atomic<bool> running_;
+namespace daemon {
 
-            std::unique_ptr<StateEventFunction> state_event_callback_;
-            std::unique_ptr<WindowsServiceCtrlEventFunction> service_ctrl_event_callback_;
+class DaemonImpl : public Daemon, public DaemonPlatformHandler {
+ private:
+  DaemonPlatform::RunType run_type_;
+  std::unique_ptr<DaemonPlatform> platform_;
+  std::atomic<bool> running_;
 
-        public:
-            DaemonImpl(const char *service_name);
+  std::unique_ptr<StateEventFunction> state_event_callback_;
+  std::unique_ptr<WindowsServiceCtrlEventFunction> service_ctrl_event_callback_;
 
-            bool running() const override;
+ public:
+  DaemonImpl(const char *service_name);
 
-            int run(const WorkerFunction& worker) override;
+  bool running() const override;
 
-            static Daemon *initialize(const char *service_name);
+  int run(const WorkerFunction &worker) override;
 
-            void setOnStateEvent(const StateEventFunction& state_event_callback) override;
+  static Daemon *initialize(const char *service_name);
 
-            void setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction& service_ctrl_event_callback) override;
+  void setOnStateEvent(const StateEventFunction &state_event_callback) override;
 
-            void onStateEvent(StateEvent state_event) override;
+  void setOnWindowsServiceCtrlEvent(const WindowsServiceCtrlEventFunction &service_ctrl_event_callback) override;
 
-            bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) override;
-        };
-    }
-}
+  void onStateEvent(StateEvent state_event) override;
+
+  bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) override;
+};
+
+} // namespace daemon
+} // namespace jcu
 
 #endif //__DAEMON_IMPL_H__

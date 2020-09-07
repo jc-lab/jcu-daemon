@@ -16,71 +16,75 @@
 #include <jcu-file/path.h>
 
 namespace jcu {
-    namespace daemon {
-        class Daemon;
-        class PlatformInstaller;
+namespace daemon {
 
-        class Result {
-        protected:
-            friend class Installer;
+class Daemon;
+class PlatformInstaller;
 
-            std::shared_ptr<PlatformInstaller> platform_installer_;
+class Result {
+ protected:
+  friend class Installer;
 
-            bool accept_;
-            int result_;
+  std::shared_ptr<PlatformInstaller> platform_installer_;
 
-        public:
-            Result(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : platform_installer_(std::move(platform_installer)), accept_(accept), result_(result) {}
+  bool accept_;
+  int result_;
 
-            bool accept() const {
-                return accept_;
-            }
+ public:
+  Result(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result)
+      : platform_installer_(std::move(platform_installer)), accept_(accept), result_(result) {}
 
-            int result() const {
-                return result_;
-            }
-        };
+  bool accept() const {
+    return accept_;
+  }
 
-        class InstallResultChain : public Result {
-        private:
-            friend class Installer;
+  int result() const {
+    return result_;
+  }
+};
 
-        public:
-            InstallResultChain(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : Result(std::move(platform_installer), accept, result) {}
-            InstallResultChain start();
-        };
+class InstallResultChain : public Result {
+ private:
+  friend class Installer;
 
-        class Installer {
-        private:
-			std::shared_ptr<PlatformInstaller> platform_installer_;
+ public:
+  InstallResultChain(std::shared_ptr<PlatformInstaller> platform_installer, bool accept, int result) : Result(std::move(
+      platform_installer), accept, result) {}
+  InstallResultChain start();
+};
 
-			Installer(const Installer& o) = delete;
-			Installer& operator=(const Installer& o) = delete;
+class Installer {
+ private:
+  std::shared_ptr<PlatformInstaller> platform_installer_;
 
-        public:
-            Installer(std::shared_ptr<PlatformInstaller> platform_installer);
-			Installer(Installer&& o) = default;
-			Installer& operator=(Installer&& o) = default;
+  Installer(const Installer &o) = delete;
+  Installer &operator=(const Installer &o) = delete;
 
-            enum StartMode {
-                START_DEMAND = 0,
-                START_AUTO = 1,
-            };
+ public:
+  Installer(std::shared_ptr<PlatformInstaller> platform_installer);
+  Installer(Installer &&o) = default;
+  Installer &operator=(Installer &&o) = default;
 
-            Installer& withServiceName(const std::string& service_name);
-            Installer& withDisplayName(const std::string& display_name);
-            Installer& withArguments(const std::string& arguments);
-            Installer& withStartMode(StartMode start_mode);
-            Installer& withPath(const file::Path &path);
-            InstallResultChain install();
-            InstallResultChain start();
+  enum StartMode {
+    START_DEMAND = 0,
+    START_AUTO = 1,
+  };
 
-            Result stop();
-            Result uninstall();
-        };
+  Installer &withServiceName(const std::string &service_name);
+  Installer &withDisplayName(const std::string &display_name);
+  Installer &withArguments(const std::string &arguments);
+  Installer &withStartMode(StartMode start_mode);
+  Installer &withPath(const file::Path &path);
+  InstallResultChain install();
+  InstallResultChain start();
 
-        extern Installer installer(const Daemon *from = nullptr);
-    }
-}
+  Result stop();
+  Result uninstall();
+};
+
+extern Installer installer(const Daemon *from = nullptr);
+
+} // namespace daemon
+} // namespace jcu
 
 #endif //__JCU_DAEMON_INSTALLER_H__

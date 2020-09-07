@@ -14,24 +14,26 @@
 #include <functional>
 
 namespace jcu {
-    namespace daemon {
-        class DaemonPlatformHandler {
-        public:
-            virtual void onStateEvent(StateEvent state_event) = 0;
-            virtual bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) { return false; }
-        };
+namespace daemon {
 
-        class DaemonPlatform {
-        public:
-            enum RunType {
-                RUN_DONE = 0,
-                RUN_START_WORKER
-            };
+class DaemonPlatformHandler {
+ public:
+  virtual void onStateEvent(StateEvent state_event) = 0;
+  virtual bool onWindowsServiceCtrlEvent(int ctrl, int event_type, void *event_data) { return false; }
+};
 
-            virtual RunType runInService(int *rc, const WorkerFunction& worker) = 0;
-            virtual bool running() = 0;
-        };
-    }
-}
+class DaemonPlatform {
+ public:
+  enum RunType {
+    RUN_DONE = 0,
+    RUN_START_WORKER
+  };
+
+  virtual RunType runInService(int *rc, const WorkerFunction &worker) = 0;
+  virtual bool running() = 0;
+};
+
+} // namespace daemon
+} // namespace jcu
 
 #endif //__PLATFORM_DAEMON_H__

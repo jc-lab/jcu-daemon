@@ -17,39 +17,41 @@
 #include <jcu-file/path.h>
 
 namespace jcu {
-    namespace daemon {
-        namespace windows {
-            class WindowsServiceInstaller : public PlatformInstaller {
-            private:
-                SC_HANDLE scm_handler_;
-                SC_HANDLE service_handle_;
-                std::basic_string<TCHAR> service_name_;
-                std::basic_string<TCHAR> display_name_;
-                std::basic_string<TCHAR> arguments_;
-                Installer::StartMode start_mode_;
-                file::Path path_;
+namespace daemon {
+namespace windows {
 
-                DWORD openServiceHandle();
+class WindowsServiceInstaller : public PlatformInstaller {
+ private:
+  SC_HANDLE scm_handler_;
+  SC_HANDLE service_handle_;
+  std::basic_string<TCHAR> service_name_;
+  std::basic_string<TCHAR> display_name_;
+  std::basic_string<TCHAR> arguments_;
+  Installer::StartMode start_mode_;
+  file::Path path_;
 
-            public:
-                WindowsServiceInstaller(const Daemon *daemon = nullptr);
-                ~WindowsServiceInstaller();
+  DWORD openServiceHandle();
 
-                int openServiceManager();
-                void close();
+ public:
+  WindowsServiceInstaller(const Daemon *daemon = nullptr);
+  ~WindowsServiceInstaller();
 
-                void setServiceName(const std::string& service_name) override;
-                void setDisplayName(const std::string& service_name) override;
-                void setArguments(const std::string& arguments) override;
-                void setStartMode(Installer::StartMode start_mode) override;
-                void setPath(const file::Path& path) override;
-                Result install() override;
-                Result uninstall() override;
-                Result start() override;
-                Result stop() override;
-            };
-        }
-    }
-}
+  int openServiceManager();
+  void close();
+
+  void setServiceName(const std::string &service_name) override;
+  void setDisplayName(const std::string &service_name) override;
+  void setArguments(const std::string &arguments) override;
+  void setStartMode(Installer::StartMode start_mode) override;
+  void setPath(const file::Path &path) override;
+  Result install() override;
+  Result uninstall() override;
+  Result start() override;
+  Result stop() override;
+};
+
+} // namespace windows
+} // namespace daemon
+} // namespace jcu
 
 #endif //__WINDOWS_WINDOWS_INSTALLER_H__
