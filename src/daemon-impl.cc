@@ -25,6 +25,15 @@ DaemonImpl::DaemonImpl(const char *service_name)
   platform_ = std::move(createDaemonPlatform(this, service_name));
 }
 
+void DaemonImpl::stop() {
+  StateEventFunction *cb = state_event_callback_.get();
+  if (cb) {
+    (*cb)(this, SEVENT_STOP);
+  }
+
+  running_.store(false);
+}
+
 bool DaemonImpl::running() const {
   return running_.load();
 }
@@ -63,20 +72,11 @@ int DaemonImpl::run(const WorkerFunction &worker) {
   if (run_type_ == DaemonPlatform::RUN_START_WORKER) {
     std::signal(SIGINT, [](int signum) -> void {
       DaemonImpl *self = (DaemonImpl *) singletone.get();
-      StateEventFunction *cb = self->state_event_callback_.get();
-      if (cb) {
-        (*cb)(self, SEVENT_STOP);
-      }
-
-      self->running_.store(false);
+      self->stop();
     });
     std::signal(SIGTERM, [](int signum) -> void {
       DaemonImpl *self = (DaemonImpl *) singletone.get();
-      StateEventFunction *cb = self->state_event_callback_.get();
-      if (cb) {
-        (*cb)(self, SEVENT_STOP);
-      }
-      self->running_.store(false);
+      self->stop();
     });
 #ifdef SIGHUP
     std::signal(SIGHUP, [](int signum) -> void {

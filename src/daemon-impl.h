@@ -31,6 +31,8 @@ class DaemonImpl : public Daemon, public DaemonPlatformHandler {
  public:
   DaemonImpl(const char *service_name);
 
+  void stop() override;
+
   bool running() const override;
 
   bool isChild() const override;

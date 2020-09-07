@@ -78,6 +78,7 @@ class Daemon {
   virtual int run(const WorkerFunction &worker) = 0;
   virtual bool running() const = 0;
   virtual bool isChild() const = 0;
+  virtual void stop() = 0;
 
   virtual int getCurrentPid() const = 0;
   virtual int getParentPid() const = 0;
